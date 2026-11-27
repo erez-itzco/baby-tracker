@@ -1,0 +1,423 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="מעקב תינוק" />
+  <title>מעקב תינוק</title>
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
+
+  <link rel="manifest" href='data:application/manifest+json,{"name":"%D7%9E%D7%A2%D7%A7%D7%91%20%D7%AA%D7%99%D7%A0%D7%95%D7%A7","short_name":"%D7%9E%D7%A2%D7%A7%D7%91%20%D7%AA%D7%99%D7%A0%D7%95%D7%A7","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231e293b%27/%3E%3Ctext x=%2796%27 y=%27125%27 font-size=%27100%27 text-anchor=%27middle%27%3E%F0%9F%8D%BC%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; user-select: none; }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .btn-press:active { transform: scale(0.96); }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-200" id="appBody">
+
+  <div class="max-w-md mx-auto p-4 pb-20">
+    <header class="flex items-center justify-between mb-5 pt-1">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <span>🍼</span> מעקב תינוק
+        </h1>
+        <p class="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+          <span id="syncStatus">מחובר ומסונכרן</span>
+          <span>•</span>
+          <span id="currentUserBadge" class="font-medium text-sky-400">אבא</span>
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-lg" title="מצב יום/לילה" id="themeBtn">☀️</button>
+        <button onclick="openSettings()" class="px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-sm font-medium">⚙️ הגדרות</button>
+      </div>
+    </header>
+
+    <section class="grid grid-cols-2 gap-2.5 mb-5" id="summaryGrid"></section>
+
+    <section class="grid grid-cols-2 gap-3 mb-6">
+      <div class="relative">
+        <button onclick="logEvent('feed')" class="btn-press w-full h-28 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-950/40 flex flex-col items-center justify-center gap-1 transition">
+          <span class="text-3xl">🍼</span>
+          <span class="font-bold text-lg">אוכל</span>
+        </button>
+        <button onclick="openFeedNote()" class="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/30 hover:bg-black/50 text-white text-xs font-medium backdrop-blur-sm">
+          + פרט
+        </button>
+      </div>
+
+      <button onclick="logEvent('poop')" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-700 text-white shadow-lg shadow-orange-950/40 flex flex-col items-center justify-center gap-1 transition">
+        <span class="text-3xl">💩</span>
+        <span class="font-bold text-lg">קקי</span>
+      </button>
+
+      <button onclick="logEvent('pee')" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-lg shadow-emerald-950/40 flex flex-col items-center justify-center gap-1 transition">
+        <span class="text-3xl">💧</span>
+        <span class="font-bold text-lg">פיפי</span>
+      </button>
+
+      <button onclick="logEvent('vitamin')" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg shadow-indigo-950/40 flex flex-col items-center justify-center gap-1 transition">
+        <span class="text-3xl">💊</span>
+        <span class="font-bold text-lg">ויטמין</span>
+      </button>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">היסטוריית פעילות (לחיצה לעריכה)</h2>
+        <button onclick="manualRefresh()" class="text-xs text-sky-400 hover:underline">רענן עכשיו ↻</button>
+      </div>
+      <div id="historyList" class="space-y-2"></div>
+    </section>
+  </div>
+
+  <div id="feedModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5">
+      <h3 class="text-lg font-bold mb-3">פרטי האכלה 🍼</h3>
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <button onclick="selectFeedPreset('60 מ״ל')" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm">60 מ״ל</button>
+        <button onclick="selectFeedPreset('90 מ״ל')" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm">90 מ״ל</button>
+        <button onclick="selectFeedPreset('120 מ״ל')" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm">120 מ״ל</button>
+        <button onclick="selectFeedPreset('150 מ״ל')" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm">150 מ״ל</button>
+        <button onclick="selectFeedPreset('הנקה ימין')" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm">הנקה ימין</button>
+        <button onclick="selectFeedPreset('הנקה שמאל')" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm">הנקה שמאל</button>
+      </div>
+      <input id="feedCustomInput" type="text" placeholder="או הקלד כמות / הערה..." class="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white mb-4 focus:outline-none focus:border-sky-500" />
+      <div class="flex gap-2">
+        <button onclick="confirmFeedNote()" class="flex-1 py-2.5 rounded-xl bg-sky-600 font-bold text-white">שמור</button>
+        <button onclick="closeModal('feedModal')" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300">ביטול</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="editModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5">
+      <h3 class="text-lg font-bold mb-1" id="editModalTitle">עריכת רישום</h3>
+      <p class="text-xs text-slate-400 mb-4">עדכון שעה או מחיקת רישום שגוי</p>
+      <label class="block text-xs text-slate-400 mb-1">שעה ותאריך</label>
+      <input id="editTimeInput" type="datetime-local" class="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white mb-4" />
+      <div class="flex gap-2">
+        <button onclick="saveEditEvent()" class="flex-1 py-2.5 rounded-xl bg-sky-600 font-bold text-white">עדכן</button>
+        <button onclick="deleteEditEvent()" class="px-4 py-2.5 rounded-xl bg-rose-600/90 font-bold text-white">מחק</button>
+        <button onclick="closeModal('editModal')" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300">סגור</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5">
+      <h3 class="text-lg font-bold mb-3">הגדרות וסנכרון זוגי ⚙️</h3>
+
+      <label class="block text-xs text-slate-400 mb-1.5">מי מתעד במכשיר הזה?</label>
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <button id="roleDadBtn" onclick="setRole('אבא')" class="py-2 rounded-xl border font-bold text-sm">👨 אבא</button>
+        <button id="roleMomBtn" onclick="setRole('אמא')" class="py-2 rounded-xl border font-bold text-sm">👩 אמא</button>
+      </div>
+
+      <label class="block text-xs text-slate-400 mb-1">קוד משפחה משותף (לסנכרון בין המכשירים)</label>
+      <p class="text-xs text-slate-400 mb-2">הזינו את אותו הקוד בדיוק בשני הטלפונים:</p>
+      <div class="flex gap-2 mb-4">
+        <input id="familyCodeInput" type="text" class="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono text-center uppercase tracking-wider" />
+        <button onclick="copyFamilyCode()" class="px-3 py-2 rounded-xl bg-slate-700 text-xs font-medium">העתק</button>
+      </div>
+
+      <button onclick="saveSettings()" class="w-full py-2.5 rounded-xl bg-emerald-600 font-bold text-white mb-2">שמור וסנכרן</button>
+      <button onclick="closeModal('settingsModal')" class="w-full py-2 rounded-xl bg-slate-800 text-slate-300 text-sm">סגור</button>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 border border-slate-600 text-white px-4 py-2.5 rounded-full text-sm font-medium shadow-xl opacity-0 pointer-events-none transition-opacity duration-200 z-50"></div>
+
+  <script>
+    const TYPES = {
+      feed:    { label: 'אוכל',   icon: '🍼', color: 'text-sky-400' },
+      poop:    { label: 'קקי',    icon: '💩', color: 'text-amber-400' },
+      pee:     { label: 'פיפי',   icon: '💧', color: 'text-teal-400' },
+      vitamin: { label: 'ויטמין', icon: '💊', color: 'text-purple-400' }
+    };
+
+    const SYNC_SERVER = 'https://ntfy.sh';
+
+    let state = {
+      events: JSON.parse(localStorage.getItem('bt_events') || '[]'),
+      role: localStorage.getItem('bt_role') || 'אבא',
+      familyCode: localStorage.getItem('bt_family') || ('BABY-' + Math.random().toString(36).substring(2, 7).toUpperCase()),
+      dark: localStorage.getItem('bt_dark') !== 'false'
+    };
+
+    localStorage.setItem('bt_family', state.familyCode);
+    let editingId = null;
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('opacity-0');
+      setTimeout(() => t.classList.add('opacity-0'), 2200);
+    }
+
+    function applyTheme() {
+      const body = document.getElementById('appBody');
+      const btn = document.getElementById('themeBtn');
+      if (state.dark) {
+        body.className = 'bg-slate-950 text-slate-100 min-h-screen transition-colors duration-200';
+        btn.textContent = '☀️';
+      } else {
+        body.className = 'bg-slate-100 text-slate-900 min-h-screen transition-colors duration-200';
+        btn.textContent = '🌙';
+      }
+      render();
+    }
+
+    function toggleTheme() {
+      state.dark = !state.dark;
+      localStorage.setItem('bt_dark', state.dark);
+      applyTheme();
+    }
+
+    function saveLocal() {
+      state.events.sort((a, b) => b.ts - a.ts);
+      state.events = state.events.slice(0, 120);
+      localStorage.setItem('bt_events', JSON.stringify(state.events));
+    }
+
+    async function pushToCloud() {
+      const dot = document.getElementById('syncDot');
+      const status = document.getElementById('syncStatus');
+      dot.className = 'w-2 h-2 rounded-full bg-amber-400 inline-block animate-pulse';
+      status.textContent = 'מסנכרן...';
+      try {
+        const topic = 'babytracker_sync_' + state.familyCode.replace(/[^a-zA-Z0-9_-]/g, '');
+        await fetch(`${SYNC_SERVER}/${topic}`, {
+          method: 'POST',
+          body: JSON.stringify({ updated: Date.now(), events: state.events })
+        });
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block';
+        status.textContent = 'מסונכרן';
+      } catch (e) {
+        dot.className = 'w-2 h-2 rounded-full bg-rose-400 inline-block';
+        status.textContent = 'שמור מקומית';
+      }
+    }
+
+    async function pullFromCloud(silent = true) {
+      try {
+        const topic = 'babytracker_sync_' + state.familyCode.replace(/[^a-zA-Z0-9_-]/g, '');
+        const res = await fetch(`${SYNC_SERVER}/${topic}/json?poll=1&since=24h`);
+        if (!res.ok) return;
+        const text = await res.text();
+        const lines = text.trim().split('\n').filter(Boolean);
+        if (!lines.length) return;
+        const lastMsg = JSON.parse(lines[lines.length - 1]);
+        if (lastMsg && lastMsg.message) {
+          const payload = JSON.parse(lastMsg.message);
+          if (Array.isArray(payload.events)) {
+            state.events = payload.events;
+            saveLocal();
+            render();
+            if (!silent) showToast('הנתונים עודכנו מהענן ✓');
+          }
+        }
+      } catch (e) {
+        if (!silent) showToast('לא ניתן להתחבר כרגע');
+      }
+    }
+
+    function manualRefresh() {
+      pullFromCloud(false);
+    }
+
+    function logEvent(type, note = '') {
+      const ev = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+        type,
+        note,
+        by: state.role,
+        ts: Date.now()
+      };
+      state.events.unshift(ev);
+      saveLocal();
+      render();
+      showToast(`${TYPES[type].icon} נרשם: ${TYPES[type].label}`);
+      pushToCloud();
+    }
+
+    function openFeedNote() {
+      document.getElementById('feedCustomInput').value = '';
+      document.getElementById('feedModal').classList.remove('hidden');
+      document.getElementById('feedModal').classList.add('flex');
+    }
+
+    function selectFeedPreset(val) {
+      closeModal('feedModal');
+      logEvent('feed', val);
+    }
+
+    function confirmFeedNote() {
+      const val = document.getElementById('feedCustomInput').value.trim();
+      closeModal('feedModal');
+      logEvent('feed', val);
+    }
+
+    function openEdit(id) {
+      const ev = state.events.find(x => x.id === id);
+      if (!ev) return;
+      editingId = id;
+      document.getElementById('editModalTitle').textContent = `עריכת ${TYPES[ev.type].label} ${TYPES[ev.type].icon}`;
+      const d = new Date(ev.ts);
+      const localIso = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      document.getElementById('editTimeInput').value = localIso;
+      document.getElementById('editModal').classList.remove('hidden');
+      document.getElementById('editModal').classList.add('flex');
+    }
+
+    function saveEditEvent() {
+      const val = document.getElementById('editTimeInput').value;
+      if (!val || !editingId) return;
+      const ev = state.events.find(x => x.id === editingId);
+      if (ev) {
+        ev.ts = new Date(val).getTime();
+        saveLocal();
+        render();
+        pushToCloud();
+        showToast('השעה עודכנה ✓');
+      }
+      closeModal('editModal');
+    }
+
+    function deleteEditEvent() {
+      if (!editingId) return;
+      state.events = state.events.filter(x => x.id !== editingId);
+      saveLocal();
+      render();
+      pushToCloud();
+      showToast('הרישום נמחק');
+      closeModal('editModal');
+    }
+
+    function openSettings() {
+      document.getElementById('familyCodeInput').value = state.familyCode;
+      updateRoleButtons();
+      document.getElementById('settingsModal').classList.remove('hidden');
+      document.getElementById('settingsModal').classList.add('flex');
+    }
+
+    function setRole(role) {
+      state.role = role;
+      updateRoleButtons();
+    }
+
+    function updateRoleButtons() {
+      const dad = document.getElementById('roleDadBtn');
+      const mom = document.getElementById('roleMomBtn');
+      dad.className = state.role === 'אבא'
+        ? 'py-2 rounded-xl border border-sky-500 bg-sky-500/20 text-sky-300 font-bold text-sm'
+        : 'py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-bold text-sm';
+      mom.className = state.role === 'אמא'
+        ? 'py-2 rounded-xl border border-pink-500 bg-pink-500/20 text-pink-300 font-bold text-sm'
+        : 'py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-bold text-sm';
+    }
+
+    function copyFamilyCode() {
+      const inp = document.getElementById('familyCodeInput');
+      inp.select();
+      navigator.clipboard?.writeText(inp.value);
+      showToast('קוד המשפחה הועתק!');
+    }
+
+    function saveSettings() {
+      const code = document.getElementById('familyCodeInput').value.trim().toUpperCase();
+      if (code) state.familyCode = code;
+      localStorage.setItem('bt_role', state.role);
+      localStorage.setItem('bt_family', state.familyCode);
+      closeModal('settingsModal');
+      render();
+      pullFromCloud(false);
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+
+    function formatAgo(ts) {
+      const diffMin = Math.floor((Date.now() - ts) / 60000);
+      if (diffMin < 1) return 'ממש עכשיו';
+      if (diffMin < 60) return `לפני ${diffMin} דק׳`;
+      const h = Math.floor(diffMin / 60);
+      const m = diffMin % 60;
+      if (h < 24) return `לפני ${h} שע׳${m ? ` ו-${m} דק׳` : ''}`;
+      return `לפני ${Math.floor(h / 24)} ימים`;
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts);
+      const today = new Date();
+      const isToday = d.toDateString() === today.toDateString();
+      const time = d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+      return isToday ? time : `${d.getDate()}/${d.getMonth() + 1} ${time}`;
+    }
+
+    function render() {
+      document.getElementById('currentUserBadge').textContent = state.role;
+      const cardBg = state.dark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm';
+      const subText = state.dark ? 'text-slate-400' : 'text-slate-500';
+
+      const todayStr = new Date().toDateString();
+      const summaryHtml = Object.entries(TYPES).map(([key, meta]) => {
+        const last = state.events.find(e => e.type === key);
+        const todayCount = state.events.filter(e => e.type === key && new Date(e.ts).toDateString() === todayStr).length;
+        return `
+          <div class="p-3 rounded-2xl border ${cardBg}">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-medium ${subText}">${meta.icon} ${meta.label}</span>
+              <span class="text-[11px] px-1.5 py-0.5 rounded-md ${state.dark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}">היום: ${todayCount}</span>
+            </div>
+            <div class="text-base font-bold truncate">${last ? formatAgo(last.ts) : 'אין רישום'}</div>
+            <div class="text-[11px] ${subText} mt-0.5">${last ? `בשעה ${formatTime(last.ts)}${last.note ? ' • ' + last.note : ''}` : '—'}</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('summaryGrid').innerHTML = summaryHtml;
+
+      const listEl = document.getElementById('historyList');
+      if (!state.events.length) {
+        listEl.innerHTML = `<div class="text-center py-8 text-sm ${subText}">עדיין אין פעילות מתועדת. לחצו על אחד הכפתורים למעלה!</div>`;
+        return;
+      }
+
+      listEl.innerHTML = state.events.map(ev => {
+        const meta = TYPES[ev.type] || TYPES.feed;
+        return `
+          <div onclick="openEdit('${ev.id}')" class="flex items-center justify-between p-3 rounded-xl border ${cardBg} cursor-pointer active:opacity-75">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">${meta.icon}</span>
+              <div>
+                <div class="font-bold text-sm flex items-center gap-1.5">
+                  <span>${meta.label}</span>
+                  ${ev.note ? `<span class="text-xs font-normal px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400">${ev.note}</span>` : ''}
+                </div>
+                <div class="text-xs ${subText}">${formatAgo(ev.ts)} • ע״י ${ev.by || 'הורה'}</div>
+              </div>
+            </div>
+            <div class="text-sm font-mono font-semibold ${subText}">${formatTime(ev.ts)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    applyTheme();
+    pullFromCloud(true);
+    setInterval(render, 30000);
+    setInterval(() => pullFromCloud(true), 15000);
+  </script>
+</body>
+</html>
