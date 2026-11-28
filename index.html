@@ -12,7 +12,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
 
-  <link rel="manifest" href='data:application/manifest+json,{"name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","short_name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231e293b%27/%3E%3Ctext x=%2796%27 y=%27125%27 font-size=%27100%27 text-anchor=%27middle%27%3E%F0%9F%8D%BC%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
+  <link rel="manifest" href='data:application/manifest+json,{"name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","short_name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231e293b%27/%3E%3Ctext x=%2796%27 y=%27125%27 font-size=%27100%27 text-anchor=%27middle%3E%F0%9F%8D%BC%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -79,6 +79,17 @@
       <button onclick="logEvent('vitamin')" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg shadow-indigo-950/40 flex flex-col items-center justify-center gap-1 transition">
         <span class="text-3xl">💊</span>
         <span class="font-bold text-lg">ויטמין</span>
+      </button>
+
+      <button onclick="logEvent('sleep')" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-lg shadow-violet-950/40 flex flex-col items-center justify-center gap-1 transition">
+        <span class="text-3xl">😴</span>
+        <span class="font-bold text-lg">נרדם</span>
+      </button>
+
+      <button id="tummyBtn" onclick="toggleTummyTimer()" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-pink-950/40 flex flex-col items-center justify-center gap-0.5 transition">
+        <span class="text-3xl" id="tummyIcon">👶</span>
+        <span class="font-bold text-lg" id="tummyLabel">זמן בטן</span>
+        <span class="text-xs text-pink-100 font-mono font-semibold" id="tummySub">התחל טיימר</span>
       </button>
     </section>
 
@@ -158,10 +169,12 @@
 
   <script>
     const TYPES = {
-      feed:    { label: 'אוכל',   icon: '🍼', color: 'text-sky-400' },
-      poop:    { label: 'קקי',    icon: '💩', color: 'text-amber-400' },
-      pee:     { label: 'פיפי',   icon: '💧', color: 'text-teal-400' },
-      vitamin: { label: 'ויטמין', icon: '💊', color: 'text-purple-400' }
+      feed:    { label: 'אוכל',     icon: '🍼', color: 'text-sky-400' },
+      poop:    { label: 'קקי',      icon: '💩', color: 'text-amber-400' },
+      pee:     { label: 'פיפי',     icon: '💧', color: 'text-teal-400' },
+      vitamin: { label: 'ויטמין',   icon: '💊', color: 'text-purple-400' },
+      sleep:   { label: 'נרדם',     icon: '😴', color: 'text-indigo-400' },
+      tummy:   { label: 'זמן בטן', icon: '👶', color: 'text-rose-400' }
     };
 
     const SYNC_SERVER = 'https://ntfy.sh';
@@ -172,13 +185,72 @@
       role: localStorage.getItem('bt_role') || 'אבא',
       familyCode: localStorage.getItem('bt_family') || ('BABY-' + Math.random().toString(36).substring(2, 7).toUpperCase()),
       dark: localStorage.getItem('bt_dark') !== 'false',
-      vitaminAlert: localStorage.getItem('bt_vitamin_alert') !== 'false'
+      vitaminAlert: localStorage.getItem('bt_vitamin_alert') !== 'false',
+      tummyStartTs: Number(localStorage.getItem('bt_tummy_start') || '0') || null
     };
 
     localStorage.setItem('bt_family', state.familyCode);
     let editingId = null;
     let beepedThisOpen = false;
     let audioCtx = null;
+
+    function formatDuration(totalSec) {
+      const sec = Math.max(0, Math.floor(totalSec));
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      if (h > 0) return `${h} ש׳ ${m} דק׳`;
+      if (m > 0) return `${m} דק׳ ${s} שנ׳`;
+      return `${s} שנ׳`;
+    }
+
+    function formatStopwatch(totalSec) {
+      const sec = Math.max(0, Math.floor(totalSec));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function getActiveTummySeconds() {
+      if (!state.tummyStartTs) return 0;
+      return Math.max(0, Math.floor((Date.now() - state.tummyStartTs) / 1000));
+    }
+
+    function getTodayTummySeconds() {
+      const todayStr = new Date().toDateString();
+      const savedSec = state.events
+        .filter(e => e.type === 'tummy' && new Date(e.ts).toDateString() === todayStr)
+        .reduce((sum, e) => sum + (Number(e.durationSec) || 0), 0);
+      return savedSec + getActiveTummySeconds();
+    }
+
+    function toggleTummyTimer() {
+      if (!state.tummyStartTs) {
+        state.tummyStartTs = Date.now();
+        localStorage.setItem('bt_tummy_start', String(state.tummyStartTs));
+        showToast('👶 טיימר זמן בטן התחיל');
+        render();
+      } else {
+        const elapsedSec = Math.max(1, Math.floor((Date.now() - state.tummyStartTs) / 1000));
+        const startTs = state.tummyStartTs;
+        state.tummyStartTs = null;
+        localStorage.removeItem('bt_tummy_start');
+        const label = formatDuration(elapsedSec);
+        const ev = {
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+          type: 'tummy',
+          note: label,
+          durationSec: elapsedSec,
+          by: state.role,
+          ts: startTs
+        };
+        state.events.unshift(ev);
+        saveLocal();
+        render();
+        showToast(`👶 זמן בטן נשמר: ${label}`);
+        pushToCloud();
+      }
+    }
 
     function hasVitaminInLast24h() {
       const cutoff = Date.now() - TWENTY_FOUR_HOURS_MS;
@@ -453,8 +525,22 @@
       return isToday ? time : `${d.getDate()}/${d.getMonth() + 1} ${time}`;
     }
 
+    function renderTummyButton() {
+      const btn = document.getElementById('tummyBtn');
+      const sub = document.getElementById('tummySub');
+      if (state.tummyStartTs) {
+        btn.className = 'btn-press h-28 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-950/50 ring-2 ring-emerald-300 flex flex-col items-center justify-center gap-0.5 transition';
+        sub.textContent = `רץ ${formatStopwatch(getActiveTummySeconds())} • לחץ לעצירה`;
+      } else {
+        btn.className = 'btn-press h-28 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-pink-950/40 flex flex-col items-center justify-center gap-0.5 transition';
+        sub.textContent = 'התחל טיימר';
+      }
+    }
+
     function render() {
       document.getElementById('currentUserBadge').textContent = state.role;
+      renderTummyButton();
+
       const cardBg = state.dark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm';
       const subText = state.dark ? 'text-slate-400' : 'text-slate-500';
 
@@ -471,6 +557,21 @@
       const summaryHtml = Object.entries(TYPES).map(([key, meta]) => {
         const last = state.events.find(e => e.type === key);
         const todayCount = state.events.filter(e => e.type === key && new Date(e.ts).toDateString() === todayStr).length;
+
+        if (key === 'tummy') {
+          const todaySec = getTodayTummySeconds();
+          return `
+            <div class="p-3 rounded-2xl border ${cardBg}">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium ${subText}">${meta.icon} ${meta.label}</span>
+                <span class="text-[11px] px-1.5 py-0.5 rounded-md ${state.dark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}">היום: ${todayCount}</span>
+              </div>
+              <div class="text-base font-bold truncate">${todaySec > 0 || state.tummyStartTs ? formatDuration(todaySec) : '0 שנ׳'}</div>
+              <div class="text-[11px] ${subText} mt-0.5">${state.tummyStartTs ? 'טיימר פעיל עכשיו...' : (last ? `אחרון: ${formatTime(last.ts)}` : 'סה״כ היום')}</div>
+            </div>
+          `;
+        }
+
         return `
           <div class="p-3 rounded-2xl border ${cardBg}">
             <div class="flex items-center justify-between mb-1">
@@ -527,7 +628,7 @@
     applyTheme();
     triggerOpenBeepIfNeeded();
     pullFromCloud(true);
-    setInterval(render, 30000);
+    setInterval(render, 1000);
     setInterval(() => pullFromCloud(true), 15000);
   </script>
 </body>
