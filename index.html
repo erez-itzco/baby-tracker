@@ -24,7 +24,7 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-200" id="appBody">
 
   <div class="max-w-md mx-auto p-4 pb-20">
-    <header class="flex items-center justify-between mb-5 pt-1">
+    <header class="flex items-center justify-between mb-4 pt-1">
       <div>
         <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
           <span>🍼</span> סטטוס מעקב עבור אורי
@@ -41,6 +41,16 @@
         <button onclick="openSettings()" class="px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-sm font-medium">⚙️ הגדרות</button>
       </div>
     </header>
+
+    <div id="vitaminAlertBanner" class="hidden mb-4 p-3 rounded-2xl border border-amber-400/60 bg-amber-500/15 text-amber-200 items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+        <span class="text-xl">💊</span>
+        <span>לא נרשם ויטמין ב-24 השעות האחרונות!</span>
+      </div>
+      <button onclick="logEvent('vitamin')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0 btn-press">
+        רשום ויטמין
+      </button>
+    </div>
 
     <section class="grid grid-cols-2 gap-2.5 mb-5" id="summaryGrid"></section>
 
@@ -131,8 +141,16 @@
         <button onclick="copyFamilyCode()" class="px-3 py-2 rounded-xl bg-slate-700 text-xs font-medium">העתק</button>
       </div>
 
+      <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/80 border border-slate-700 mb-4">
+        <div>
+          <div class="text-sm font-semibold">התראת ויטמין (24 שעות) 💊</div>
+          <div class="text-xs text-slate-400">מצפצף בפתיחת האפליקציה אם לא נלחץ</div>
+        </div>
+        <input id="vitaminAlertToggle" type="checkbox" class="w-5 h-5 accent-amber-500 cursor-pointer" />
+      </div>
+
       <button onclick="saveSettings()" class="w-full py-2.5 rounded-xl bg-emerald-600 font-bold text-white mb-2">שמור וסנכרן</button>
-      <button onclick="closeModal('settingsModal')" class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm">סגור</button>
+      <button onclick="closeModal('settingsModal')" class="w-full py-2 rounded-xl bg-slate-800 text-slate-300 text-sm">סגור</button>
     </div>
   </div>
 
@@ -147,16 +165,80 @@
     };
 
     const SYNC_SERVER = 'https://ntfy.sh';
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
     let state = {
       events: JSON.parse(localStorage.getItem('bt_events') || '[]'),
       role: localStorage.getItem('bt_role') || 'אבא',
       familyCode: localStorage.getItem('bt_family') || ('BABY-' + Math.random().toString(36).substring(2, 7).toUpperCase()),
-      dark: localStorage.getItem('bt_dark') !== 'false'
+      dark: localStorage.getItem('bt_dark') !== 'false',
+      vitaminAlert: localStorage.getItem('bt_vitamin_alert') !== 'false'
     };
 
     localStorage.setItem('bt_family', state.familyCode);
     let editingId = null;
+    let beepedThisOpen = false;
+    let audioCtx = null;
+
+    function hasVitaminInLast24h() {
+      const cutoff = Date.now() - TWENTY_FOUR_HOURS_MS;
+      return state.events.some(ev => ev.type === 'vitamin' && ev.ts >= cutoff);
+    }
+
+    function shouldAlertVitamin() {
+      return state.vitaminAlert && !hasVitaminInLast24h();
+    }
+
+    function playBeep() {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return false;
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        if (audioCtx.state !== 'running') return false;
+
+        const now = audioCtx.currentTime;
+        [0, 0.22].forEach(offset => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now + offset);
+          gain.gain.setValueAtTime(0.001, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.2, now + offset + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.16);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.17);
+        });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function triggerOpenBeepIfNeeded() {
+      if (beepedThisOpen || !shouldAlertVitamin()) return;
+      if (playBeep()) {
+        beepedThisOpen = true;
+      }
+    }
+
+    ['pointerdown', 'keydown', 'touchstart'].forEach(evtName => {
+      window.addEventListener(evtName, () => {
+        triggerOpenBeepIfNeeded();
+      }, { passive: true });
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        beepedThisOpen = false;
+        render();
+        triggerOpenBeepIfNeeded();
+      }
+    });
 
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -224,6 +306,7 @@
             state.events = payload.events;
             saveLocal();
             render();
+            triggerOpenBeepIfNeeded();
             if (!silent) showToast('הנתונים עודכנו מהענן ✓');
           }
         }
@@ -306,6 +389,7 @@
 
     function openSettings() {
       document.getElementById('familyCodeInput').value = state.familyCode;
+      document.getElementById('vitaminAlertToggle').checked = state.vitaminAlert;
       updateRoleButtons();
       document.getElementById('settingsModal').classList.remove('hidden');
       document.getElementById('settingsModal').classList.add('flex');
@@ -337,8 +421,10 @@
     function saveSettings() {
       const code = document.getElementById('familyCodeInput').value.trim().toUpperCase();
       if (code) state.familyCode = code;
+      state.vitaminAlert = document.getElementById('vitaminAlertToggle').checked;
       localStorage.setItem('bt_role', state.role);
       localStorage.setItem('bt_family', state.familyCode);
+      localStorage.setItem('bt_vitamin_alert', state.vitaminAlert);
       closeModal('settingsModal');
       render();
       pullFromCloud(false);
@@ -371,6 +457,15 @@
       document.getElementById('currentUserBadge').textContent = state.role;
       const cardBg = state.dark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm';
       const subText = state.dark ? 'text-slate-400' : 'text-slate-500';
+
+      const banner = document.getElementById('vitaminAlertBanner');
+      if (shouldAlertVitamin()) {
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+      } else {
+        banner.classList.add('hidden');
+        banner.classList.remove('flex');
+      }
 
       const todayStr = new Date().toDateString();
       const summaryHtml = Object.entries(TYPES).map(([key, meta]) => {
@@ -430,6 +525,7 @@
     }
 
     applyTheme();
+    triggerOpenBeepIfNeeded();
     pullFromCloud(true);
     setInterval(render, 30000);
     setInterval(() => pullFromCloud(true), 15000);
