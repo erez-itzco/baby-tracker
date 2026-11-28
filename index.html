@@ -6,13 +6,13 @@
   <meta name="theme-color" content="#0f172a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="מעקב תינוק" />
-  <title>מעקב תינוק</title>
+  <meta name="apple-mobile-web-app-title" content="סטטוס מעקב עבור אורי" />
+  <title>סטטוס מעקב עבור אורי</title>
 
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
 
-  <link rel="manifest" href='data:application/manifest+json,{"name":"%D7%9E%D7%A2%D7%A7%D7%91%20%D7%AA%D7%99%D7%A0%D7%95%D7%A7","short_name":"%D7%9E%D7%A2%D7%A7%D7%91%20%D7%AA%D7%99%D7%A0%D7%95%D7%A7","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231e293b%27/%3E%3Ctext x=%2796%27 y=%27125%27 font-size=%27100%27 text-anchor=%27middle%27%3E%F0%9F%8D%BC%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
+  <link rel="manifest" href='data:application/manifest+json,{"name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","short_name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231e293b%27/%3E%3Ctext x=%2796%27 y=%27125%27 font-size=%27100%27 text-anchor=%27middle%27%3E%F0%9F%8D%BC%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -26,8 +26,8 @@
   <div class="max-w-md mx-auto p-4 pb-20">
     <header class="flex items-center justify-between mb-5 pt-1">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <span>🍼</span> מעקב תינוק
+        <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
+          <span>🍼</span> סטטוס מעקב עבור אורי
         </h1>
         <p class="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
           <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
@@ -46,9 +46,10 @@
 
     <section class="grid grid-cols-2 gap-3 mb-6">
       <div class="relative">
-        <button onclick="logEvent('feed')" class="btn-press w-full h-28 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-950/40 flex flex-col items-center justify-center gap-1 transition">
+        <button onclick="logEvent('feed', '120 מ״ל')" class="btn-press w-full h-28 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-blue-950/40 flex flex-col items-center justify-center gap-0.5 transition">
           <span class="text-3xl">🍼</span>
           <span class="font-bold text-lg">אוכל</span>
+          <span class="text-xs text-sky-100/90 font-medium">120 מ״ל</span>
         </button>
         <button onclick="openFeedNote()" class="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-black/30 hover:bg-black/50 text-white text-xs font-medium backdrop-blur-sm">
           + פרט
@@ -131,7 +132,7 @@
       </div>
 
       <button onclick="saveSettings()" class="w-full py-2.5 rounded-xl bg-emerald-600 font-bold text-white mb-2">שמור וסנכרן</button>
-      <button onclick="closeModal('settingsModal')" class="w-full py-2 rounded-xl bg-slate-800 text-slate-300 text-sm">סגור</button>
+      <button onclick="closeModal('settingsModal')" class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm">סגור</button>
     </div>
   </div>
 
@@ -246,7 +247,7 @@
       state.events.unshift(ev);
       saveLocal();
       render();
-      showToast(`${TYPES[type].icon} נרשם: ${TYPES[type].label}`);
+      showToast(`${TYPES[type].icon} נרשם: ${TYPES[type].label}${note ? ' (' + note + ')' : ''}`);
       pushToCloud();
     }
 
@@ -264,7 +265,7 @@
     function confirmFeedNote() {
       const val = document.getElementById('feedCustomInput').value.trim();
       closeModal('feedModal');
-      logEvent('feed', val);
+      logEvent('feed', val || '120 מ״ל');
     }
 
     function openEdit(id) {
@@ -394,21 +395,35 @@
         return;
       }
 
+      const lastFeedEvent = state.events.find(e => e.type === 'feed');
+      const lastFeedId = lastFeedEvent ? lastFeedEvent.id : null;
+
       listEl.innerHTML = state.events.map(ev => {
         const meta = TYPES[ev.type] || TYPES.feed;
+        const isLastFeed = ev.type === 'feed' && ev.id === lastFeedId;
+        const rowStyle = isLastFeed
+          ? (state.dark
+              ? 'bg-sky-950/80 border-2 border-sky-400 shadow-md shadow-sky-950/60'
+              : 'bg-sky-50 border-2 border-sky-500 shadow-md shadow-sky-200/60')
+          : `border ${cardBg}`;
+        const timeStyle = isLastFeed
+          ? (state.dark ? 'text-sky-300' : 'text-sky-700')
+          : subText;
+
         return `
-          <div onclick="openEdit('${ev.id}')" class="flex items-center justify-between p-3 rounded-xl border ${cardBg} cursor-pointer active:opacity-75">
+          <div onclick="openEdit('${ev.id}')" class="flex items-center justify-between p-3 rounded-xl ${rowStyle} cursor-pointer active:opacity-75 transition">
             <div class="flex items-center gap-3">
               <span class="text-2xl">${meta.icon}</span>
               <div>
-                <div class="font-bold text-sm flex items-center gap-1.5">
+                <div class="font-bold text-sm flex flex-wrap items-center gap-1.5">
                   <span>${meta.label}</span>
-                  ${ev.note ? `<span class="text-xs font-normal px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400">${ev.note}</span>` : ''}
+                  ${ev.note ? `<span class="text-xs font-normal px-2 py-0.5 rounded-full ${isLastFeed ? 'bg-sky-500 text-white font-semibold' : 'bg-sky-500/15 text-sky-400'}">${ev.note}</span>` : ''}
+                  ${isLastFeed ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40">אחרונה</span>` : ''}
                 </div>
                 <div class="text-xs ${subText}">${formatAgo(ev.ts)} • ע״י ${ev.by || 'הורה'}</div>
               </div>
             </div>
-            <div class="text-sm font-mono font-semibold ${subText}">${formatTime(ev.ts)}</div>
+            <div class="text-sm font-mono font-semibold ${timeStyle}">${formatTime(ev.ts)}</div>
           </div>
         `;
       }).join('');
