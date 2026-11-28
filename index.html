@@ -12,7 +12,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%231e293b'/%3E%3Ctext x='96' y='125' font-size='100' text-anchor='middle'%3E🍼%3C/text%3E%3C/svg%3E" />
 
-  <link rel="manifest" href='data:application/manifest+json,{"name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","short_name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231e293b%27/%3E%3Ctext x=%2796%27 y=%27125%27 font-size=%27100%27 text-anchor=%27middle%3E%F0%9F%8D%BC%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
+  <link rel="manifest" href='data:application/manifest+json,{"name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","short_name":"%D7%A1%D7%98%D7%98%D7%95%D7%A1%20%D7%9E%D7%A2%D7%A7%D7%91%20%D7%A2%D7%91%D7%95%D7%A8%20%D7%90%D7%95%D7%A8%D7%99","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2742%27 fill=%27%231e293b%27/%3E%3Ctext x=%2796%27 y=%27125%27 font-size=%27100%27 text-anchor=%27middle%27%3E%F0%9F%8D%BC%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}' />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -52,6 +52,17 @@
       </button>
     </div>
 
+    <div id="lastSleepBanner" class="hidden mb-4 p-3.5 rounded-2xl border border-amber-400/60 bg-amber-500/15 text-amber-100 items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl">😊</span>
+        <div>
+          <div class="text-xs text-amber-300 font-semibold">סה״כ זמן שינה אחרון</div>
+          <div class="text-base font-bold" id="lastSleepBannerText">—</div>
+        </div>
+      </div>
+      <button onclick="dismissSleepBanner()" class="px-2.5 py-1 rounded-lg bg-black/30 text-xs text-amber-200">סגור</button>
+    </div>
+
     <section class="grid grid-cols-2 gap-2.5 mb-5" id="summaryGrid"></section>
 
     <section class="grid grid-cols-2 gap-3 mb-6">
@@ -86,7 +97,13 @@
         <span class="font-bold text-lg">נרדם</span>
       </button>
 
-      <button id="tummyBtn" onclick="toggleTummyTimer()" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-pink-950/40 flex flex-col items-center justify-center gap-0.5 transition">
+      <button onclick="logWakeUp()" class="btn-press h-28 rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-600 text-white shadow-lg shadow-amber-950/40 flex flex-col items-center justify-center gap-0.5 transition">
+        <span class="text-3xl">😊</span>
+        <span class="font-bold text-lg">התעורר</span>
+        <span class="text-xs text-amber-100 font-medium" id="wakeSubText">חשב זמן שינה</span>
+      </button>
+
+      <button id="tummyBtn" onclick="toggleTummyTimer()" class="btn-press col-span-2 h-24 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-pink-950/40 flex flex-col items-center justify-center gap-0.5 transition">
         <span class="text-3xl" id="tummyIcon">👶</span>
         <span class="font-bold text-lg" id="tummyLabel">זמן בטן</span>
         <span class="text-xs text-pink-100 font-mono font-semibold" id="tummySub">התחל טיימר</span>
@@ -174,6 +191,7 @@
       pee:     { label: 'פיפי',     icon: '💧', color: 'text-teal-400' },
       vitamin: { label: 'ויטמין',   icon: '💊', color: 'text-purple-400' },
       sleep:   { label: 'נרדם',     icon: '😴', color: 'text-indigo-400' },
+      wake:    { label: 'התעורר',   icon: '😊', color: 'text-amber-300' },
       tummy:   { label: 'זמן בטן', icon: '👶', color: 'text-rose-400' }
     };
 
@@ -204,11 +222,81 @@
       return `${s} שנ׳`;
     }
 
+    function formatSleepDuration(totalSec) {
+      const sec = Math.max(0, Math.floor(totalSec));
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      if (h > 0 && m > 0) return `${h} ש׳ ו-${m} דק׳`;
+      if (h > 0) return `${h} שעות`;
+      if (m > 0) return `${m} דק׳`;
+      return `${sec} שנ׳`;
+    }
+
     function formatStopwatch(totalSec) {
       const sec = Math.max(0, Math.floor(totalSec));
       const m = Math.floor(sec / 60);
       const s = sec % 60;
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function getOpenSleepEvent(beforeTs = Date.now()) {
+      const lastSleep = state.events.find(e => e.type === 'sleep' && e.ts <= beforeTs);
+      if (!lastSleep) return null;
+      const wakeAfterSleep = state.events.find(e => e.type === 'wake' && e.ts > lastSleep.ts && e.ts <= beforeTs);
+      if (wakeAfterSleep) return null;
+      return lastSleep;
+    }
+
+    function logWakeUp() {
+      const now = Date.now();
+      const openSleep = getOpenSleepEvent(now);
+      let sleepSec = 0;
+      let note = '';
+      let bannerMsg = '';
+
+      if (openSleep) {
+        sleepSec = Math.max(1, Math.floor((now - openSleep.ts) / 1000));
+        const formatted = formatSleepDuration(sleepSec);
+        note = `ישן ${formatted}`;
+        bannerMsg = `ישן סה״כ ${formatted} (מ-${formatTime(openSleep.ts)} עד ${formatTime(now)})`;
+      } else {
+        note = 'ללא שעת הירדמות קודמת';
+        bannerMsg = 'לא נמצאה לחיצה קודמת על "נרדם"';
+      }
+
+      const ev = {
+        id: now.toString(36) + Math.random().toString(36).slice(2, 5),
+        type: 'wake',
+        note,
+        sleepDurationSec: sleepSec,
+        by: state.role,
+        ts: now
+      };
+      state.events.unshift(ev);
+      saveLocal();
+
+      const banner = document.getElementById('lastSleepBanner');
+      const bannerText = document.getElementById('lastSleepBannerText');
+      bannerText.textContent = bannerMsg;
+      banner.classList.remove('hidden');
+      banner.classList.add('flex');
+
+      render();
+      showToast(openSleep ? `😊 התעורר! ${note}` : '😊 נרשם: התעורר');
+      pushToCloud();
+    }
+
+    function dismissSleepBanner() {
+      const banner = document.getElementById('lastSleepBanner');
+      banner.classList.add('hidden');
+      banner.classList.remove('flex');
+    }
+
+    function getTodaySleepSeconds() {
+      const todayStr = new Date().toDateString();
+      return state.events
+        .filter(e => e.type === 'wake' && new Date(e.ts).toDateString() === todayStr)
+        .reduce((sum, e) => sum + (Number(e.sleepDurationSec) || 0), 0);
     }
 
     function getActiveTummySeconds() {
@@ -316,7 +404,7 @@
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.classList.remove('opacity-0');
-      setTimeout(() => t.classList.add('opacity-0'), 2200);
+      setTimeout(() => t.classList.add('opacity-0'), 2800);
     }
 
     function applyTheme() {
@@ -529,17 +617,29 @@
       const btn = document.getElementById('tummyBtn');
       const sub = document.getElementById('tummySub');
       if (state.tummyStartTs) {
-        btn.className = 'btn-press h-28 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-950/50 ring-2 ring-emerald-300 flex flex-col items-center justify-center gap-0.5 transition';
+        btn.className = 'btn-press col-span-2 h-24 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-950/50 ring-2 ring-emerald-300 flex flex-col items-center justify-center gap-0.5 transition';
         sub.textContent = `רץ ${formatStopwatch(getActiveTummySeconds())} • לחץ לעצירה`;
       } else {
-        btn.className = 'btn-press h-28 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-pink-950/40 flex flex-col items-center justify-center gap-0.5 transition';
+        btn.className = 'btn-press col-span-2 h-24 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-pink-950/40 flex flex-col items-center justify-center gap-0.5 transition';
         sub.textContent = 'התחל טיימר';
+      }
+    }
+
+    function renderWakeSubtext() {
+      const wakeSub = document.getElementById('wakeSubText');
+      const openSleep = getOpenSleepEvent();
+      if (openSleep) {
+        const sec = Math.max(0, Math.floor((Date.now() - openSleep.ts) / 1000));
+        wakeSub.textContent = `ישן כבר ${formatSleepDuration(sec)}`;
+      } else {
+        wakeSub.textContent = 'חשב זמן שינה';
       }
     }
 
     function render() {
       document.getElementById('currentUserBadge').textContent = state.role;
       renderTummyButton();
+      renderWakeSubtext();
 
       const cardBg = state.dark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm';
       const subText = state.dark ? 'text-slate-400' : 'text-slate-500';
@@ -568,6 +668,20 @@
               </div>
               <div class="text-base font-bold truncate">${todaySec > 0 || state.tummyStartTs ? formatDuration(todaySec) : '0 שנ׳'}</div>
               <div class="text-[11px] ${subText} mt-0.5">${state.tummyStartTs ? 'טיימר פעיל עכשיו...' : (last ? `אחרון: ${formatTime(last.ts)}` : 'סה״כ היום')}</div>
+            </div>
+          `;
+        }
+
+        if (key === 'wake') {
+          const todaySleepSec = getTodaySleepSeconds();
+          return `
+            <div class="p-3 rounded-2xl border ${cardBg}">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-medium ${subText}">${meta.icon} ${meta.label}</span>
+                <span class="text-[11px] px-1.5 py-0.5 rounded-md ${state.dark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}">היום: ${todayCount}</span>
+              </div>
+              <div class="text-base font-bold truncate">${last && last.sleepDurationSec ? formatSleepDuration(last.sleepDurationSec) : (last ? formatAgo(last.ts) : 'אין רישום')}</div>
+              <div class="text-[11px] ${subText} mt-0.5">${todaySleepSec > 0 ? `סה״כ שינה היום: ${formatSleepDuration(todaySleepSec)}` : (last ? `בשעה ${formatTime(last.ts)}` : '—')}</div>
             </div>
           `;
         }
